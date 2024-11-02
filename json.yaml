@@ -1,0 +1,62 @@
+imports:
+  - https://raw.githubusercontent.com/dotnet/crank/main/src/Microsoft.Crank.Jobs.Bombardier/bombardier.yml
+  - https://raw.githubusercontent.com/dotnet/crank/main/src/Microsoft.Crank.Jobs.Wrk/wrk.yml
+  - https://raw.githubusercontent.com/aspnet/Benchmarks/main/scenarios/json.benchmarks.yml
+
+variables:
+  applicationAddress: 10.118.99.98  # server's address
+  loadAddress: 10.118.98.111        # load generator's address
+  applicationPort: 5010
+  applicationScheme: http
+  loadPort: 5010
+  serverPort: 5014
+  loadScheme: http
+
+profiles:
+  CedarCrestProfile:
+    variables:
+      serverAddress: "{{applicationAddress}}" 
+    jobs:
+      application:
+        endpoints:
+          - "{{applicationScheme}}://{{applicationAddress}}:{{applicationPort}}"
+      load:
+        endpoints:
+          - "{{loadScheme}}://{{loadAddress}}:{{loadPort}}"
+
+scenarios:
+  json:
+    application:
+      # cpuSet: 0-7 # affinity example
+      framework: net9.0
+      # NOTE: remove these 3 once .net 9.0 goes GA. Also, remove them if you use net8.0
+      aspNetCoreVersion: "9.0.0-rtm.24515.11"
+      runtimeVersion: "9.0.0-rtm.24516.5"
+      sdkVersion: "9.0.100-rtm.24513.10"
+      #
+      job: aspnetbenchmarks
+      collectStartup: false
+      collect: false
+      options:
+        reuseSource: false
+        reuseBuild: false
+        collectCounters: true
+        displayOutput: true
+      variables:
+        scenario: json
+      environmentVariables:
+        # Disable DATAS
+        DOTNET_GCDynamicAdaptationMode: 0
+    load:
+      options:
+        displayOutput: true
+      job: wrk # replace with bombardier if load generator is Windows
+      waitForExit: True
+      variables:
+        connections: 4096
+        threads: 64
+        duration: 15
+        warmup: 45
+        serverPort: 5014
+        presetHeaders: json
+        path: /json
