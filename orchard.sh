@@ -3,13 +3,21 @@
 # Default parameters
 : ${DOTNET_VER:="9.0"}     # Can be either "8.0" or "9.0" for exact versions (e.g. previews) see dotnet-install.sh args below
 #: ${APP_CPUSET:="26-40"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
-: ${APP_CPUSET:="26-37"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
+: ${APP_CPUSET:="26-46"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
 : ${WRK_CPUSET:="45"}      # Affinity mask for load generator. typically, just one core is enough, consider using more
                            # if OrchardCMS uses more than 15 cores.
 : ${USE_WRK:="1"}          # if set to 0, bombardier will be used (good for fixed-rate RPS testing)
+: ${WARM:="120s"}	   # warm up run time in seconds
+: ${RUN="20s"}		   # run test time
+
 : ${WRK_CONNECTIONS:="64"} # 64 connections are enough, consider increasing if more cores are used
 : ${USE_PERF:="0"}
 : ${ALL_SYMBOLS:="0"}
+
+echo "====================================================="
+echo "run tests on cores $APP_CPUSET and wrk on $WRK_CPUSET"
+echo "warm-up is $WARM and run time is $RUN"
+echo "====================================================="
 
 if [ "$(uname)" == "Darwin" ]; then
     USE_WRK=0 # wrk is not available on macOS
@@ -139,15 +147,15 @@ echo "Started..."
 #####################################################
 trap "exit" INT
 if [ "$USE_WRK" = "1" ]; then
-    taskset -c $WRK_CPUSET wrk -d 40s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive"
-    taskset -c $WRK_CPUSET wrk -d 20s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" > results${DOTNET_VER}_1.txt 2>&1
-    taskset -c $WRK_CPUSET wrk -d 20s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" > results${DOTNET_VER}_2.txt 2>&1
+    taskset -c $WRK_CPUSET wrk -d $WARM -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive"
+    taskset -c $WRK_CPUSET wrk -d $RUN -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" > results${DOTNET_VER}_1.txt 2>&1
+    taskset -c $WRK_CPUSET wrk -d $RUN -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" > results${DOTNET_VER}_2.txt 2>&1
     #taskset -c $WRK_CPUSET wrk -d 20s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" | grep "Requests/sec" > results${DOTNET_VER}_1.txt 2>&1
     #taskset -c $WRK_CPUSET wrk -d 20s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" | grep "Requests/sec" > results${DOTNET_VER}_2.txt 2>&1
 else
-    taskset -c $WRK_CPUSET $BENCH_DIR/./bombardier -d 40s -c $WRK_CONNECTIONS -t 2s --insecure -l --fasthttp --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" http://$SERVER_ADDRESS:5014/about
-    taskset -c $WRK_CPUSET $BENCH_DIR/./bombardier -d 20s -c $WRK_CONNECTIONS -t 2s --insecure -l --fasthttp --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" http://$SERVER_ADDRESS:5014/about | grep "Reqs/sec" > results${DOTNET_VER}_1.txt 2>&1
-    taskset -c $WRK_CPUSET $BENCH_DIR/./bombardier -d 20s -c $WRK_CONNECTIONS -t 2s --insecure -l --fasthttp --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" http://$SERVER_ADDRESS:5014/about | grep "Reqs/sec" > results${DOTNET_VER}_2.txt 2>&1
+    taskset -c $WRK_CPUSET $BENCH_DIR/./bombardier -d $WARM -c $WRK_CONNECTIONS -t 2s --insecure -l --fasthttp --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" http://$SERVER_ADDRESS:5014/about
+    taskset -c $WRK_CPUSET $BENCH_DIR/./bombardier -d $RUN -c $WRK_CONNECTIONS -t 2s --insecure -l --fasthttp --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" http://$SERVER_ADDRESS:5014/about | grep "Reqs/sec" > results${DOTNET_VER}_1.txt 2>&1
+    taskset -c $WRK_CPUSET $BENCH_DIR/./bombardier -d $RUN -c $WRK_CONNECTIONS -t 2s --insecure -l --fasthttp --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" http://$SERVER_ADDRESS:5014/about | grep "Reqs/sec" > results${DOTNET_VER}_2.txt 2>&1
 fi
 
 # rm perf.data || true
