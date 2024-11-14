@@ -4,20 +4,28 @@
 : ${DOTNET_VER:="9.0"}     # Can be either "8.0" or "9.0" for exact versions (e.g. previews) see dotnet-install.sh args below
 #: ${APP_CPUSET:="26-40"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
 : ${APP_CPUSET:="$1-$2"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
-: ${WRK_CPUSET:="17"}      # Affinity mask for load generator. typically, just one core is enough, consider using more
+: ${WRK_CPUSET:="45"}      # Affinity mask for load generator. typically, just one core is enough, consider using more
                            # if OrchardCMS uses more than 15 cores.
 : ${USE_WRK:="1"}          # if set to 0, bombardier will be used (good for fixed-rate RPS testing)
-: ${WARM:="60s"}	   # warm up run time in seconds
+: ${WARM:="120s"}	   # warm up run time in seconds
 : ${RUN:="20s"}		   # run test time
 
 : ${WRK_CONNECTIONS:="64"} # 64 connections are enough, consider increasing if more cores are used
 : ${USE_PERF:="0"}
 : ${ALL_SYMBOLS:="0"}
 
+: ${OUTPUTFILE:="results${DOTNET_VER}_${APP_CPUSET}_${WARM}_${RUN}.txt"}
+
 echo "====================================================="
 echo "run tests on cores $APP_CPUSET and wrk on $WRK_CPUSET"
 echo "warm-up is $WARM and run time is $RUN"
 echo "====================================================="
+
+
+echo  "=====================================================" > "$OUTPUTFILE" 2>&1
+echo  "run tests on cores $APP_CPUSET and wrk on $WRK_CPUSET" >> "$OUTPUTFILE" 2>&1
+echo  "warm-up is $WARM and run time is $RUN" >> "$OUTPUTFILE" 2>&1
+echo  "=====================================================" >> "$OUTPUTFILE" 2>&1
 
 if [ "$(uname)" == "Darwin" ]; then
     USE_WRK=0 # wrk is not available on macOS
@@ -154,12 +162,12 @@ trap "exit" INT
 #}
 
 if [ "$USE_WRK" = "1" ]; then
-echo "start #1 wrk for warm-up $WARM..."
-    taskset -c $WRK_CPUSET wrk -d $WARM -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" > results${DOTNET_VER}_${APP_CPUSET}.txt 2>&1
-echo "start #1 wrk for $RUN..."
-    taskset -c $WRK_CPUSET wrk -d $RUN -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" >> results${DOTNET_VER}_${APP_CPUSET}.txt 2>&1
-echo "start #2 wrk for $RUN..."
-    taskset -c $WRK_CPUSET wrk -d $RUN -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" >> results${DOTNET_VER}_${APP_CPUSET}.txt 2>&1
+	echo "start #0 wrk for warm-up $WARM..."
+	taskset -c $WRK_CPUSET wrk -d $WARM -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" >> "$OUTPUTFILE" 2>&1 #>> results${DOTNET_VER}_${APP_CPUSET}_$(WARM)_$(RUN).txt 2>&1
+	echo "start #1 wrk for $RUN..."
+	taskset -c $WRK_CPUSET wrk -d $RUN -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" >> "$OUTPUTFILE" 2>&1 #>> results${DOTNET_VER}_${APP_CPUSET}_$(WARM)_$(RUN).txt 2>&1
+	echo "start #2 wrk for $RUN..."
+	taskset -c $WRK_CPUSET wrk -d $RUN -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" >> "$OUTPUTFILE" 2>&1 #>> results${DOTNET_VER}_${APP_CPUSET}_$(WARM)_$(RUN).txt 2>&1
     #taskset -c $WRK_CPUSET wrk -d 20s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" | grep "Requests/sec" > results${DOTNET_VER}_1.txt 2>&1
     #taskset -c $WRK_CPUSET wrk -d 20s -c $WRK_CONNECTIONS http://$SERVER_ADDRESS:5014/about --latency --header "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7" --header "Connection: keep-alive" | grep "Requests/sec" > results${DOTNET_VER}_2.txt 2>&1
 else
@@ -174,7 +182,7 @@ fi
 # perf inject --input perf.data --jit --output perfjit.data
 # perf report --input perfjit.data --no-children --percent-limit 2
 
-echo "RPS: $(cat results${DOTNET_VER}_${APP_CPUSET}.txt)"
+#echo "RPS: $(cat results${DOTNET_VER}_${APP_CPUSET}.txt)"
 #echo "RPS2: $(cat results${DOTNET_VER}_2.txt)"
 pkill OrchardCore || true
 
