@@ -1,11 +1,43 @@
-
+#!/bin/bash
 pushd telemetry-solution/tools/topdown_tool
+
+echo "Press any key to capture topdown for 1 core #1..."
+read -n 1 key
+./topdown-tool -C 1-1 sleep 10 > topdown_warmup120s_1_1-1.txt
+
+echo "Press any key to capture topdown for 1 core #2..."
+read -n 1 key
+./topdown-tool -C 1-1 sleep 10 > topdown_warmup120s_1_1-2.txt
+
+echo "Press any key to capture topdown for 2 cores #1..."
+read -n 1 key
 ./topdown-tool -C 1-2 sleep 10 > topdown_warmup120s_1_2-1.txt
-./topdown-tool -C 1-2 sleep 10 > topdown_warmup120s_1_2-2.txt                                                                                                               
+
+echo "Press any key to capture topdown for 2 cores #2..."
+read -n 1 key
+./topdown-tool -C 1-2 sleep 10 > topdown_warmup120s_1_2-2.txt
+
+echo "Press any key to capture topdown for 4 cores #1..."
+read -n 1 key
 ./topdown-tool -C 1-4 sleep 10 > topdown_warmup120s_1_4-1.txt
-./topdown-tool -C 1-4 sleep 10 > topdown_warmup120s_1_4-2.txt                                                                                                               
-./topdown-tool -C 1-8 sleep 10 > topdown_warmup120s_1_8-1.txt                                                                                                               
-./topdown-tool -C 1-8 sleep 10 > topdown_warmup120s_1_8-2.txt                                                                                                               
-./topdown-tool -C 1-16 sleep 10 > topdown_warmup120s_1_16-1.txt                                                                                                             
-./topdown-tool -C 1-16 sleep 10 > topdown_warmup120s_1_16-2.txt    
+
+echo "Press any key to capture topdown for 4 cores #2..."
+read -n 1 key
+./topdown-tool -C 1-4 sleep 10 > topdown_warmup120s_1_4-2.txt
+
+echo "Press any key to capture topdown for 8 cores #1..."
+read -n 1 key
+./topdown-tool -C 1-8 sleep 10 > topdown_warmup120s_1_8-1.txt
+
+echo "Press any key to capture topdown for 8 cores #2..."
+read -n 1 key
+./topdown-tool -C 1-8 sleep 10 > topdown_warmup120s_1_8-2.txt
+
+echo "Press any key to capture topdown for 16 cores #1..."
+read -n 1 key
+./topdown-tool -C 1-16 sleep 10 > topdown_warmup120s_1_16-1.txt
+
+echo "Press any key to capture topdown for 16 cores #2..."
+read -n 1 key
+./topdown-tool -C 1-16 sleep 10 > topdown_warmup120s_1_16-2.txt
 popd
