@@ -49,12 +49,12 @@ $ ./mhz-aarch64
 4) the OrchardCMS app has better results to have higher WARMUP time set to be 120s
 
 In orchardsignal.sh,  set:
-: ${WARM:="120s"}          # warm up run time in seconds
-: ${RUN:="20s"}            # run test time
+": ${WARM:="120s"}          # warm up run time in seconds"
+": ${RUN:="20s"}            # run test time"
 
 5) Also enable these to have symbols enabled
-: ${USE_PERF:="1"}
-: ${ALL_SYMBOLS:="1"}
+": ${USE_PERF:="1"}"
+": ${ALL_SYMBOLS:="1"}"
 
 You need to rebuild orchard-bench9.0  by removing the existing one
 
