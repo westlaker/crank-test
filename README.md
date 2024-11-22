@@ -10,8 +10,7 @@ To Run OrchardCMS Benchmark while collecting Performance results and Topdown res
 
 On one terminal do:
 ./runtopdownsignal.sh
-It collects topdown data based on the cores 1, 2, 4, 8, 16 the OrchardCMS app runs on and collect the topdown data on these cores
-with the files:
+It collects topdown data based on the cores 1, 2, 4, 8, 16 the OrchardCMS app runs on and collect the topdown data on these cores with the files:
 topdown_warmup120s_1-1-1.txt
 topdown_warmup120s_1-2-1.txt
 topdown_warmup120s_1-4-1.txt
@@ -20,8 +19,7 @@ topdown_warmup120s_1-16-1.txt
 
 On other terminal do:
 ./runorchardsignal.sh  
-It will start OrchardCMS app on cores 1, 2, 4, 8, 16, and run wrk traffic towards OrchardCMS app and record the results for cores 1, 2, 4, 8, 16
-with the files:
+It will start OrchardCMS app on cores 1, 2, 4, 8, 16, and run wrk traffic towards OrchardCMS app and record the results for cores 1, 2, 4, 8, 16 with the files:
 results9.0_1-1_120s_20s.txt
 results9.0_1-2.txt
 results9.0_1-4.txt
@@ -48,7 +46,7 @@ $ sudo cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq
 $ ./mhz-aarch64
 2399 MHz, 0.4168 nanosec clock
 
-4) the OrchardCMS app to have higher WARMUP time set to be 120s
+4) the OrchardCMS app has better results to have higher WARMUP time set to be 120s
 
 In orchardsignal.sh,  set:
 : ${WARM:="120s"}          # warm up run time in seconds
