@@ -41,8 +41,10 @@ $ echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_gover
 3) We need to set CPU HW Freq to as closer as possible to compare the results for different CPUs
 
 $ sudo cpufreq-set -f 2.8GHz
+
 $ sudo cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq
 2400000
+
 $ ./mhz-aarch64
 2399 MHz, 0.4168 nanosec clock
 
