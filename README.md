@@ -31,7 +31,9 @@ Couple things to start with:
 1) We need to enable THP on the system:
 
 $ echo always | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+
 $ cat /sys/kernel/mm/transparent_hugepage/enabled
+
 [always] madvise never
 
 2) We need to configure performance to the scaling_governor
@@ -43,19 +45,25 @@ $ echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_gover
 $ sudo cpufreq-set -f 2.8GHz
 
 $ sudo cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq
+
 2400000
 
 $ ./mhz-aarch64
+
 2399 MHz, 0.4168 nanosec clock
 
 4) the OrchardCMS app has better results to have higher WARMUP time set to be 120s
 
 In orchardsignal.sh,  set:
+
 ": ${WARM:="120s"}          # warm up run time in seconds"
+
 ": ${RUN:="20s"}            # run test time"
 
 5) Also enable these to have symbols enabled
+   
 ": ${USE_PERF:="1"}"
+
 ": ${ALL_SYMBOLS:="1"}"
 
 You need to rebuild orchard-bench9.0  by removing the existing one
