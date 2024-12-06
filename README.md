@@ -9,22 +9,20 @@ OrchardCMS is a web application framework (Content Management System). The bench
 To Run OrchardCMS Benchmark while collecting Performance results and Topdown results
 
 On one terminal do:
+
 ./runtopdownsignal.sh
+
 It collects topdown data based on the cores 1, 2, 4, 8, 16 the OrchardCMS app runs on and collect the topdown data on these cores with the files:
-topdown_warmup120s_1-1-1.txt
-topdown_warmup120s_1-2-1.txt
-topdown_warmup120s_1-4-1.txt
-topdown_warmup120s_1-8-1.txt
-topdown_warmup120s_1-16-1.txt
+
+topdown_warmup120s_1-[1|2|4|8|16]-1.txt
 
 On other terminal do:
+
 ./runorchardsignal.sh  
-It will start OrchardCMS app on cores 1, 2, 4, 8, 16, and run wrk traffic towards OrchardCMS app and record the results for cores 1, 2, 4, 8, 16 with the files:
-results9.0_1-1_120s_20s.txt
-results9.0_1-2.txt
-results9.0_1-4.txt
-results9.0_1-8.txt
-results9.0_1-16_120s_20s.txt
+
+It will start OrchardCMS app on cores 1, 2, 4, 8, 16, and run wrk traffic towards OrchardCMS app and record the results for cores 1, 2, 4, 8, 16 with the files like this:
+
+results9.0_1-[1|2|4|8|16]_120s_20s.txt
 
 Couple things to start with:
 
