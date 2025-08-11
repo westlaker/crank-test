@@ -4,7 +4,7 @@
 : ${DOTNET_VER:="9.0"}     # Can be either "8.0" or "9.0" for exact versions (e.g. previews) see dotnet-install.sh args below
 #: ${APP_CPUSET:="26-40"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
 : ${APP_CPUSET:="$1-$2"}    # Affinity mask for OrcharCMS, e.g 0-14 (15 cores)
-: ${WRK_CPUSET:="45"}      # Affinity mask for load generator. typically, just one core is enough, consider using more
+: ${WRK_CPUSET:="15"}      # Affinity mask for load generator. typically, just one core is enough, consider using more
                            # if OrchardCMS uses more than 15 cores.
 : ${USE_WRK:="1"}          # if set to 0, bombardier will be used (good for fixed-rate RPS testing)
 : ${WARM:="120s"}	   # warm up run time in seconds
@@ -69,12 +69,12 @@ if [ ! -d "$BENCH_DIR" ]; then
     wget https://github.com/codesenberg/bombardier/releases/download/v1.2.6/bombardier-$TARGET_OS-$TARGET_ARCH -O $BENCH_DIR/bombardier
     chmod +x $BENCH_DIR/bombardier
 
-    #if [ "$(uname)" == "Darwin" ]; then
-    #    brew install cpuset
-    #else
-    #    apt-get update
-    #    apt-get install -y wrk || exit 1
-    #fi
+    if [ "$(uname)" == "Darwin" ]; then
+        brew install cpuset
+    else
+        apt-get update
+        apt-get install -y wrk || exit 1
+    fi
 
     git clone https://github.com/orchardcms/orchardcore.git $BENCH_DIR/orchardcore
     # We need to checkout a branch that supports .NET 9.0 (to be removed once .NET 9.0 reaches GA)
