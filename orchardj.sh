@@ -146,6 +146,8 @@ echo "Starting..."
 pushd $BENCH_DIR/orchardcore/src/OrchardCore.Cms.Web > /dev/null
 TFM_FOLDER=$(find "$BENCH_DIR/orchardcore/src/OrchardCore.Cms.Web/bin/Release/net$DOTNET_VER" -mindepth 1 -maxdepth 1 -type d | head -n 1)
 nohup taskset -c $APP_CPUSET $TFM_FOLDER/publish/./OrchardCore.Cms.Web --urls http://$SERVER_ADDRESS:5014 > orchard.log 2>&1 &
+"PID of OrchardCore.Cms.Web:"
+pgrep -af OrchardCore.Cms.Web
 sleep 5 # give it some time to bind a socket (or wait for 'Now listening on:' in its stdout)
 popd > /dev/null
 echo "Started..."
